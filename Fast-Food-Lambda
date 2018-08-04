@@ -1,0 +1,475 @@
+'use strict';
+const Alexa = require('alexa-sdk');
+const APP_ID = undefined;
+
+/***********
+Data: Customize the data below as you please.
+***********/
+
+const SKILL_NAME = "Fast Food";
+const STOP_MESSAGE = "See ya later";
+const CANCEL_MESSAGE = "Okay, adios";
+
+const HELP_START = "Fast food done right.  I suggest recipes for breakfast, lunch, dinner, and snacks.  What meal were you thinking?";
+const HELP_START_REPROMPT = "Let's make a meal together.  What meal would ya like?";
+const HELP_RECIPE = "Choose a recipe that strikes your fancy.";
+const HELP_RECIPE_REPROMPT = "Choose a recipe of pure deliciousness.";
+const HELP_INSTRUCTIONS = "Ask me to repeat the instructions or say 'next' to hear the next line of instructions.";
+const HELP_INSTRUCTIONS_REPROMPT = "Do you want to repeat instructions?  Say repeat.";
+const HELP_CANCEL = "You can hear a new recipe or just not eat.";
+const HELP_CANCEL_REPROMPT = "Not eating so far caused 100% of test subjects to die.";
+
+const CHOOSE_TYPE_MESSAGE = "Welcome to fast food! I know some delightful breakfast, lunch, snack, or dinner recipes. What kind of recipe are you looking for?";
+const REPROMPT_TYPE = "You can choose a breakfast, lunch, snack, or dinner recipe. What type of meal would you like to choose?";
+const MEALTYPE_NOT_IN_LIST = chosenType => `Sorry, I've got nothing for ${chosenType}. Do you want a breakfast, lunch, dinner or snack idea?`;
+
+const RECIPE_ADJECTIVES = [
+  "easy",
+  "tasty",
+  "fun",
+  "delicious"
+];
+const SUGGEST_RECIPE = recipeName => `Let's make ${_pickRandom(RECIPE_ADJECTIVES)} ${recipeName}! Can we make ${recipeName}?`;
+const MISUNDERSTOOD_RECIPE_ANSWER = "Please answer with sure or no.";
+const NO_REMAINING_RECIPE = "That's all she wrote. I don't know any more recipes. Do you want to select a different meal type?"
+const INGREDIENTS_INTRO = "Here are the ingredients"; // Here follows a list of ingredients
+const INGREDIENTS_ENDING = "Does that sound doable?"; // Will be said after the list of ingredients
+
+
+const FIRST_TIME_INSTRUCTIONS = "Say 'next' to go to the next line of instructions. Say 'repeat' if you didn't understand or want to hear the last line of instructions again.";
+const REPROMPT_INSTRUCTIONS = "Say 'next' to go to the next line of instructions. Say 'repeat' if you didn't understand or want to hear the last line of instructions again.";
+const MISUNDERSTOOD_INSTRUCTIONS_ANSWER = "Sorry, I didn't catch that.";
+const CLOSING_MESSAGE = "Great work. Bone appetit, koodose, and enjoy that meal";
+
+const recipes = {
+  breakfast: [
+    {
+      name: "Peanut butter and banana french toast",
+      instructions: [
+        "First let's mix up the eggs and cream in a bowl.  Feel free to add a little sugar, vanilla, and cinnamon.",
+        "Place a large skillet over medium heat and slice up your bread.",
+        "Soak the bread in the egg mixture just for a second or two each side.  Add to hot skillet.",
+        "Flip them when they're brown and toasty.",
+        "Add your bananas and peanut butter to the top!  Yum."
+      ],
+      ingredients: [
+        "peanut butter",
+        "banana",
+        "bread, preferably old challah",
+        "two eggs",
+        "a half cup cream or milk"
+      ]
+    },
+    {
+      name: "Blueberry oatmeal",
+      instructions: [
+        "Prepare the oats according to packaged directions.",
+        "Top with blueberries and sunflower seeds.",
+        "Drizzle with agave nectar and enjoy.",
+      ],
+      ingredients: [
+        "blueberries",
+        "one serving quick oats",
+        "agave nectar",
+        "sunflower seeds"
+      ]
+    },
+    {
+      name: "Power smoothie",
+      instructions: [
+        "Take out your blender and put in the yogurt, milk or juice, and then ice cubes.",
+        "Add your fruit, however much you want, to that mixture.",
+        "Blend on high for about ten seconds and then check consistency.",
+        "Add more liquid or fruit to your heart's desire.",
+        "Top with chia seeds or oats.  Have a smooth day!"
+      ],
+      ingredients: [
+        "frozen fruit, player's choice",
+        "greek or regular yogurt",
+        "ice cubes, maybe four",
+        "milk or fruit juice, apple is nice",
+        "chia seeds or oats"
+      ]
+    }
+  ],
+  lunch: [
+    {
+      name: "B L T and C",
+      instructions: [
+        "Let's get sandwich bread, bacon, coffee grounds if you want to get fancy, lettuce, tomato, and any mustard or mayo.",
+        "First lets make that bacon.  Spread coffee grounds on top and bake in an oven at three hundred seventy five degrees until crisp.",
+        "Take some butter and a little mustard.  Toast low and slow in a pan over low heat for about seven minutes.",
+        "Ingredients assemble.  Add your bacon to your sandwich with the lettuce and cut tomato.  I like adding goat cheese to top it off.",
+        "Great work!  Enjoy."
+      ],
+      ingredients: [
+        "bacon",
+        "lettuce",
+        "tomato",
+        "butter",
+        "bread"
+      ]
+    },
+    {
+      name: "Watermelon peach caprese salad",
+      instructions: [
+        "Getting the ingredients together was the hard part. Stack and layer together the watermelon, tomato, cheese, and peach slices.",
+        "Garnish with basil and mint.",
+        "Drizzle with oil and balsamic.",
+        "Sprinkle with salt and pepper.  Enjoy chilled."
+      ],
+      ingredients: [
+        "thin sliced watermelon",
+        "sliced tomatoes",
+        "sliced mozzarella, fresh is best",
+        "sliced peaches",
+        "fresh basil",
+        "fresh mint",
+        "olive oil",
+        "balsamic vinegar",
+        "salt and pepper"
+      ]
+    },
+    {
+      name: "Spinach and strawberry salad",
+      instructions: [
+        "Assemble ingredients in a medium bowl.  Feel free to add bacon or other fixins.",
+        "Top with lemon juice, olive oil, and salt and pepper",
+        "Success!"
+      ],
+      ingredients: [
+        "spinach",
+        "strawberry",
+        "goat cheese",
+        "celery",
+        "half lemon",
+        "olive oil",
+        "pecans",
+        "salt and pepper"
+      ]
+    },
+    {
+      name: "Grilled cheese the fancy way",
+      instructions: [
+        "You'll need butter, dijon mustard, bread, a bit of brie without the rind, and aged white cheddar cheese.  Ingredients unite!",
+        "Process your cheeses in a food processor until smooth.  Butter your bread with some butter and a little mustard, yes mustard trust me.",
+        "Preheat your pan for two minutes over medium heat and get that cheese on those buttered buns.",
+        "Turn down the heat to low and cook low and slow for six to nine minutes each side.  Good food takes time.",
+        "Is that not the best?  Enjoy."
+      ],
+      ingredients: [
+        "butter",
+        "dijon mustard",
+        "bread",
+        "a bit of brie, rind removed",
+        "aged white cheddar cheese"
+      ]
+    }
+  ],
+  dinner: [
+    {
+      name: "Roast chicken",
+      instructions: [
+        "Let's grab that whole chicken, some kosher salt and pepper, and a tablespoon oil.  Be sure to remove the packet of giblets.  Gross!",
+        "Preheat oven to four hundred fifty. Take your chicken and dry it off, really dry, then rub with oil.",
+        "Take your salt and pepper and rub all over.  If you're feeling ambitious, get the under the skin so that it crisps up.",
+        "Put it in the over for twenty minutes and then let it roast at two hundred fifty degrees until it reaches temperature.",
+        "Chicken safe temp is one hundred sixty.  Add some lemon at the end as a garnish.  Voila."
+      ],
+      ingredients: [
+        "whole chicken. No giblets",
+        "kosher salt and pepper",
+        "tablespoon oil"
+      ]
+    },
+    {
+      name: "Mexican casserole",
+      instructions: [
+        ""
+        "Saute your onion and peppers in a pan over medium heat with a lil oil  Feel free to add some garlic, cumin, or paprika.",
+        "Preheat oven to four hundred.",
+        "Grease a small pan with a little oil and add the sauted ingredients to the pan along with the beans, tomatoes, and leftover cooked meat.",
+        "Top with cheese and bake in oven until golden brown, maybe ten minutes."
+      ],
+      ingredients: [
+        "peppers sliced",
+        "onion",
+        "black beans canned",
+        "tomatoes diced in a can",
+        "leftover meat like chicken or beef",
+        "mozzerella cheese"
+      ]
+    },
+    {
+      name: "Boxed mac and cheese two point o",
+      instructions: [
+        "First you're going to make the mac and cheese the standard way.  Boil the noodles and add the milk, cheese, butter.",
+        "Now here's what no one ever told you, the secret to making this good.  Ready?",
+        "Put that mixture back on the heat.  Yes, back on the heat, until it really thickens and condenses into pure delight, about two minutes over low heat.  You've made it to the big leagues."
+
+      ],
+      ingredients: [
+        "boxed mac and cheese",
+        "milk",
+        "butter"
+      ]
+    }
+  ],
+  snack: [
+    {
+      name: "Popcorn",
+      instructions: [
+        "Heat a pan with oil covering the bottom of it.  Place three kernels with the lid on top and wait until they pop.",
+        "Put enough kernels in the bottom of the pan to cover the pan and swirl for ten seconds off heat.",
+        "Wait until they're mostly done popping and take off the heat!  Add butter and salt if you want."
+      ],
+      ingredients: [
+        "popcorn kernels",
+        "oil",
+        "salt",
+        "butter"
+      ]
+    },
+    {
+      name: "Roasted chickpeas",
+      instructions: [
+        "Preheat oven to four hundred fifty degrees.  Rinse those chickpeas and dry them off really well with paper towels.",
+        "In a bowl, toss chickpeas with olive oil, and season to taste with salt, garlic salt, and cayenne pepper, if using.",
+        "Spread on a baking sheet, and bake for thirty to forty minutes, until browned and crunchy."
+      ],
+      ingredients: [
+        "canned chickpeas",
+        "seasonings like garlic salt and cayenne",
+        "olive oil"
+      ]
+    },
+    {
+      name: "Traditional salsa, the dish not the dance",
+      instructions: [
+        "Place all your ingredients into the food processor.",
+        "Hit the button to process in intervals until it looks like the right consistency.",
+        "Add chips and enjoy."
+      ],
+      ingredients: [
+        "canned diced tomatoes, juices drained",
+        "cilantro",
+        "paprika",
+        "salt and pepper",
+        "lime juice",
+        "red onion, about half chopped"
+      ]
+    }
+  ]
+};
+
+/***********
+Execution Code: Avoid editing the code below if you don't know JavaScript.
+***********/
+
+// Private methods (this is the actual code logic behind the app)
+
+const _getCurrentStep = handler => handler.attributes['instructions'][handler.attributes['current_step']];
+
+const _intentAndSlotPresent = handler => {
+  try {
+    return handler.event.request.intent.slots.mealType;
+  }
+  catch (e){
+    return false;
+  }
+};
+const _selectedMealType = handler => {
+  return _intentAndSlotPresent(handler) && handler.event.request.intent.slots.mealType.value;
+};
+const _checkMealTypePresence = handler => {
+  return Object.keys(recipes).includes(_selectedMealType(handler));
+};
+const _setMealType = handler => {
+  // Reset remaining recipes in case the user went back from before
+  handler.attributes['mealType'] = _selectedMealType(handler);
+  handler.attributes['remainingRecipes'] = recipes[handler.attributes['mealType']];
+  handler.handler.state = states.RECIPEMODE;
+  handler.emitWithState("Recipe");
+  return true;
+};
+
+const _randomIndexOfArray = (array) => Math.floor(Math.random() * array.length);
+const _pickRandom = (array) => array[_randomIndexOfArray(array)];
+
+// Handle user input and intents:
+
+const states = {
+  STARTMODE: "_STARTMODE",
+  RECIPEMODE: "_RECIPEMODE",
+  INSTRUCTIONSMODE: "_INSTRUCTIONSMODE",
+  CANCELMODE: "_CANCELMODE"
+};
+
+
+const newSessionhandlers = {
+  'NewSession': function(){
+    this.handler.state = states.STARTMODE;
+    this.emitWithState('NewSession');
+  },
+  'AMAZON.HelpIntent': function(){
+    this.emit(':ask', HELP_START, HELP_START_REPROMPT);
+  },
+  'AMAZON.CancelIntent': function(){
+    this.emit(':tell', CANCEL_MESSAGE);
+  },
+  'AMAZON.StopIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'Unhandled': function(){
+    this.emit(':ask', REPROMPT_TYPE);
+  }
+};
+
+const startModeHandlers = Alexa.CreateStateHandler(states.STARTMODE, {
+  'NewSession': function(startMessage = CHOOSE_TYPE_MESSAGE){
+    if(_checkMealTypePresence(this)){
+      // Go directly to selecting a meal if mealtype was already present in the slots
+      _setMealType(this);
+    }else{
+      this.emit(':ask', startMessage, REPROMPT_TYPE);
+    }
+  },
+  'ChooseTypeIntent': function(){
+    if(_checkMealTypePresence(this)){
+      _setMealType(this);
+    }else{
+      this.emit(':ask', MEALTYPE_NOT_IN_LIST(_selectedMealType(this)));
+    }
+  },
+  'AMAZON.HelpIntent': function(){
+    this.emit(':ask', HELP_START, HELP_START_REPROMPT);
+  },
+  'AMAZON.CancelIntent': function(){
+    this.emit(':tell', CANCEL_MESSAGE);
+  },
+  'AMAZON.StopIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'Unhandled': function(){
+    this.emit(':ask', REPROMPT_TYPE);
+  }
+});
+
+const recipeModeHandlers = Alexa.CreateStateHandler(states.RECIPEMODE, {
+  'Recipe': function(){
+    if(this.new){
+      this.attributes['remainingRecipes'] = recipes[handler.attributes['mealType']];
+    }
+
+    if(this.attributes['remainingRecipes'].length > 0){
+      // Select random recipe and remove it from remainingRecipes
+      this.attributes['recipe'] = this.attributes['remainingRecipes'].splice(_randomIndexOfArray(this.attributes['remainingRecipes']), 1)[0]; // Select a random recipe
+      // Ask user to confirm selection
+      this.emit(':ask', SUGGEST_RECIPE(this.attributes['recipe'].name));
+    }else{
+      this.attributes['remainingRecipes'] = recipes[this.attributes['mealType']];
+      this.handler.state = states.CANCELMODE;
+      this.emitWithState('NoRecipeLeftHandler');
+    }
+  },
+  'IngredientsIntent': function(){
+    var ingredients = this.attributes['recipe'].ingredients.join(', ').replace(/,(?!.*,)/gmi, ' and'); // Add 'and' before last ingredient
+
+    this.emit(':ask', `${INGREDIENTS_INTRO} ${ingredients}. ${INGREDIENTS_ENDING}`)
+  },
+  'YesIntent': function(){
+    this.attributes['instructions'] = this.attributes['recipe'].instructions;
+    this.attributes['current_step'] = 0;
+    this.handler.state = states.INSTRUCTIONSMODE;
+    this.emitWithState('InstructionsIntent');
+  },
+  'NoIntent': function(){
+    this.emitWithState('Recipe');
+  },
+  'AMAZON.HelpIntent': function(){
+    this.emit(':ask', HELP_RECIPE, HELP_RECIPE_REPROMPT);
+  },
+  'AMAZON.CancelIntent': function(){
+    this.handler.state = states.CANCELMODE;
+    this.emitWithState('AskToCancelHandler');
+  },
+  'AMAZON.StopIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'Unhandled': function(){
+    this.emit(':ask', MISUNDERSTOOD_RECIPE_ANSWER);
+  }
+});
+
+const instructionsModeHandlers = Alexa.CreateStateHandler(states.INSTRUCTIONSMODE, {
+  'InstructionsIntent': function(){
+    const firstTimeInstructions = (this.attributes['current_step'] == 0) ? FIRST_TIME_INSTRUCTIONS : '';
+    this.emit(':ask', `${_getCurrentStep(this)} ${firstTimeInstructions}`, REPROMPT_INSTRUCTIONS);
+  },
+  'NextStepIntent': function(){
+    this.attributes['current_step']++;
+
+    if(this.attributes['current_step'] < this.attributes['instructions'].length - 1){
+      this.emitWithState('InstructionsIntent');
+    }else{
+      this.emitWithState('InstructionsEnded');
+    }
+  },
+  'InstructionsEnded': function(){
+    this.emit(':tell', `${_getCurrentStep(this)} ${CLOSING_MESSAGE}`);
+  },
+  'DifferentRecipeIntent': function(){
+    this.handler.state = states.RECIPEMODE;
+    this.emitWithState('Recipe');
+  },
+  'AMAZON.HelpIntent': function(){
+    this.emit(':ask', HELP_INSTRUCTIONS, HELP_INSTRUCTIONS_REPROMPT);
+  },
+  'AMAZON.CancelIntent': function(){
+    this.handler.state = states.CANCELMODE;
+    this.emitWithState('AskToCancelHandler');
+  },
+  'AMAZON.StopIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'Unhandled': function(){
+    this.emit(':ask', MISUNDERSTOOD_INSTRUCTIONS_ANSWER);
+  }
+});
+
+
+const cancelModeHandlers = Alexa.CreateStateHandler(states.CANCELMODE, {
+  'NoRecipeLeftHandler': function(){
+    this.emit(':ask', NO_REMAINING_RECIPE);
+  },
+  'AskToCancelHandler': function(){
+    this.emit(':ask', CANCEL_MESSAGE);
+  },
+  'YesIntent': function(){
+    this.attributes['current_step'] = 0;
+    this.handler.state = states.STARTMODE;
+    this.emitWithState('NewSession', REPROMPT_TYPE);
+  },
+  'NoIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'AMAZON.HelpIntent': function(){
+    this.emit(':ask', HELP_CANCEL, HELP_CANCEL_REPROMPT);
+  },
+  'AMAZON.CancelIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'AMAZON.StopIntent': function(){
+    this.emit(':tell', STOP_MESSAGE);
+  },
+  'Unhandled': function(){
+    this.emit(':ask', MISUNDERSTOOD_RECIPE_ANSWER);
+  }
+});
+
+exports.handler = (event, context, callback) => {
+  const alexa = Alexa.handler(event, context);
+  alexa.APP_ID = APP_ID;
+  alexa.registerHandlers(newSessionhandlers, startModeHandlers, recipeModeHandlers, instructionsModeHandlers, cancelModeHandlers);
+  alexa.execute();
+};
