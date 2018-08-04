@@ -13,7 +13,7 @@ const CANCEL_MESSAGE = "Okay, adios";
 const HELP_START = "Fast food done right.  I suggest recipes for breakfast, lunch, dinner, and snacks.  What meal were you thinking?";
 const HELP_START_REPROMPT = "Let's make a meal together.  What meal would ya like?";
 const HELP_RECIPE = "Choose a recipe that strikes your fancy.";
-const HELP_RECIPE_REPROMPT = "Choose a recipe of pure deliciousness.";
+const HELP_RECIPE_REPROMPT = "Choose a recipe of pure deliciousness!";
 const HELP_INSTRUCTIONS = "Ask me to repeat the instructions or say 'next' to hear the next line of instructions.";
 const HELP_INSTRUCTIONS_REPROMPT = "Do you want to repeat instructions?  Say repeat.";
 const HELP_CANCEL = "You can hear a new recipe or just not eat.";
@@ -46,6 +46,7 @@ const recipes = {
     {
       name: "Peanut butter and banana french toast",
       instructions: [
+        "Here are the ingredients.  Peanut butter, banana, bread, two eggs, a half cup of cream or milk.  Get those items together.",
         "First let's mix up the eggs and cream in a bowl.  Feel free to add a little sugar, vanilla, and cinnamon.",
         "Place a large skillet over medium heat and slice up your bread.",
         "Soak the bread in the egg mixture just for a second or two each side.  Add to hot skillet.",
@@ -63,6 +64,7 @@ const recipes = {
     {
       name: "Blueberry oatmeal",
       instructions: [
+        "Lets get our ingredients.  blueberries, one serving quick oats, agave nectar, and sunflower seeds.",
         "Prepare the oats according to packaged directions.",
         "Top with blueberries and sunflower seeds.",
         "Drizzle with agave nectar and enjoy.",
@@ -77,6 +79,7 @@ const recipes = {
     {
       name: "Power smoothie",
       instructions: [
+        "Here are the ingredients.  Frozen fruit, greek or regular yogurt, ice cubes, milk or fruit juice, and chia seeds or oats.",
         "Take out your blender and put in the yogurt, milk or juice, and then ice cubes.",
         "Add your fruit, however much you want, to that mixture.",
         "Blend on high for about ten seconds and then check consistency.",
@@ -99,8 +102,7 @@ const recipes = {
         "Let's get sandwich bread, bacon, coffee grounds if you want to get fancy, lettuce, tomato, and any mustard or mayo.",
         "First lets make that bacon.  Spread coffee grounds on top and bake in an oven at three hundred seventy five degrees until crisp.",
         "Take some butter and a little mustard.  Toast low and slow in a pan over low heat for about seven minutes.",
-        "Ingredients assemble.  Add your bacon to your sandwich with the lettuce and cut tomato.  I like adding goat cheese to top it off.",
-        "Great work!  Enjoy."
+        "Ingredients assemble.  Add your bacon to your sandwich with the lettuce and cut tomato.  I like adding goat cheese to top it off."
       ],
       ingredients: [
         "bacon",
@@ -113,7 +115,8 @@ const recipes = {
     {
       name: "Watermelon peach caprese salad",
       instructions: [
-        "Getting the ingredients together was the hard part. Stack and layer together the watermelon, tomato, cheese, and peach slices.",
+        "Getting the ingredients together is the hard part.  You need watermelon sliced thin, sliced tomatoes, sliced mozzarella, sliced peaches, basil, mint, olive oil, vinegar, salt and pepper.",
+        "Stack and layer together the watermelon, tomato, cheese, and peach slices.",
         "Garnish with basil and mint.",
         "Drizzle with oil and balsamic.",
         "Sprinkle with salt and pepper.  Enjoy chilled."
@@ -133,9 +136,9 @@ const recipes = {
     {
       name: "Spinach and strawberry salad",
       instructions: [
-        "Assemble ingredients in a medium bowl.  Feel free to add bacon or other fixins.",
-        "Top with lemon juice, olive oil, and salt and pepper",
-        "Success!"
+        "Assemble spinach, strawberry, goat cheese, and celery in a medium bowl.",
+        "Feel free to add bacon or other fixins.",
+        "Top with lemon juice, olive oil, and salt and pepper."
       ],
       ingredients: [
         "spinach",
@@ -154,8 +157,7 @@ const recipes = {
         "You'll need butter, dijon mustard, bread, a bit of brie without the rind, and aged white cheddar cheese.  Ingredients unite!",
         "Process your cheeses in a food processor until smooth.  Butter your bread with some butter and a little mustard, yes mustard trust me.",
         "Preheat your pan for two minutes over medium heat and get that cheese on those buttered buns.",
-        "Turn down the heat to low and cook low and slow for six to nine minutes each side.  Good food takes time.",
-        "Is that not the best?  Enjoy."
+        "Turn down the heat to low and cook low and slow for six to nine minutes each side.  Good food takes time."
       ],
       ingredients: [
         "butter",
@@ -185,7 +187,7 @@ const recipes = {
     {
       name: "Mexican casserole",
       instructions: [
-        ""
+        "Let's grab some peppers, an onion, canned black beans drained, can of diced tomatoes drained, leftover meat like chicken or beef, and mozzerella cheese.",
         "Saute your onion and peppers in a pan over medium heat with a lil oil  Feel free to add some garlic, cumin, or paprika.",
         "Preheat oven to four hundred.",
         "Grease a small pan with a little oil and add the sauted ingredients to the pan along with the beans, tomatoes, and leftover cooked meat.",
@@ -206,7 +208,6 @@ const recipes = {
         "First you're going to make the mac and cheese the standard way.  Boil the noodles and add the milk, cheese, butter.",
         "Now here's what no one ever told you, the secret to making this good.  Ready?",
         "Put that mixture back on the heat.  Yes, back on the heat, until it really thickens and condenses into pure delight, about two minutes over low heat.  You've made it to the big leagues."
-
       ],
       ingredients: [
         "boxed mac and cheese",
@@ -233,7 +234,7 @@ const recipes = {
     {
       name: "Roasted chickpeas",
       instructions: [
-        "Preheat oven to four hundred fifty degrees.  Rinse those chickpeas and dry them off really well with paper towels.",
+        "Preheat oven to four hundred fifty degrees.  Rinse a can of chickpeas and dry them off really well with paper towels.",
         "In a bowl, toss chickpeas with olive oil, and season to taste with salt, garlic salt, and cayenne pepper, if using.",
         "Spread on a baking sheet, and bake for thirty to forty minutes, until browned and crunchy."
       ],
@@ -246,9 +247,10 @@ const recipes = {
     {
       name: "Traditional salsa, the dish not the dance",
       instructions: [
-        "Place all your ingredients into the food processor.",
+        "Get yer ingredients.  Canned diced tomatoes with the juices drained, cilantro, paprika, salt and pepper, lime juice, and half red onion diced.",
+        "Place all your ingredients into the food processor or chop real finely by hand.",
         "Hit the button to process in intervals until it looks like the right consistency.",
-        "Add chips and enjoy."
+        "Just add chips."
       ],
       ingredients: [
         "canned diced tomatoes, juices drained",
